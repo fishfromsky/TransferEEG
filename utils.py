@@ -119,6 +119,14 @@ def generate_data_loader(data, label, config):
     return data_loader
 
 
+def generate_valid_test_loader(data, label, config):
+    from sklearn.model_selection import train_test_split
+    X_train, X_test, y_train, y_test = train_test_split(data, label, test_size=0.2)
+    valid_loader = DataLoader(myDataset(X_train, y_train), batch_size=config.batch_size, shuffle=True, drop_last=False)
+    test_loader = DataLoader(myDataset(X_test, y_test), batch_size=config.batch_size, shuffle=True, drop_last=False)
+    return valid_loader, test_loader
+
+
 def shuffle(data_x, label_x):
     indexes = np.array([i for i in range(len(label_x))])
     np.random.shuffle(indexes)

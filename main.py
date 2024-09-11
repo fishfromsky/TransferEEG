@@ -2,7 +2,7 @@ import torch
 import torchmetrics
 from torch.autograd import Variable
 from config import Config
-from utils import generate_data_loader, data_factory, shuffle, norminy
+from utils import generate_data_loader, data_factory, shuffle, norminy, generate_valid_test_loader
 from model import MS_MDA
 import numpy as np
 from utils import EarlyStopping
@@ -22,7 +22,8 @@ metrics = torchmetrics.Accuracy().to(device)
 
 
 def train_model(source_comb, source_label_comb, target_comb, target_label_comb, target, sess):
-    target_loader = generate_data_loader(target_comb, target_label_comb, config)
+    target_loader, test_loader = generate_valid_test_loader(target_comb, target_label_comb, config)
+    # target_loader = generate_data_loader(target_comb, target_label_comb, config)
     source_loader = []
     for source in range(len(source_comb)):
         source_loader.append(generate_data_loader(source_comb[source], source_label_comb[source], config))
@@ -74,7 +75,7 @@ def train_model(source_comb, source_label_comb, target_comb, target_label_comb, 
 
     for epoch in range(config.epochs):
         model.train()
-        
+
         for mark in range(len(source_loader)):
 
             try:
@@ -142,7 +143,7 @@ def train_model(source_comb, source_label_comb, target_comb, target_label_comb, 
             real_epoch += 1
             acc_list = []
             loss_list = []
-            for t_data, t_label, _, _ in target_loader:
+            for t_data, t_label, _, _ in test_loader:
                 t_data = t_data.to(device).float()
                 t_label = t_label.to(device).long()
                 t_pred = model.predict_class(t_data)
@@ -187,10 +188,47 @@ def train_model(source_comb, source_label_comb, target_comb, target_label_comb, 
     writer.save()
 
 
+def eval(source_comb, source_label_comb, target_comb, target_label_comb, target, sess):
+    target_loader, test_loader = generate_valid_test_loader(target_comb, target_label_comb, config)
+    # target_loader = generate_data_loader(target_comb, target_label_comb, config)
+    source_loader = []
+    for source in range(len(source_comb)):
+        source_loader.append(generate_data_loader(source_comb[source], source_label_comb[source], config))
+
+    model = MS_MDA(target_comb.shape[-1], config.num_classes, len(source_loader), config, device)
+    model.to(device)
+    model_dir = os.path.join(config.result_path, str(sess), str(target), 'model', 'model.pth')
+    state_dict = torch.load(model_dir, map_location=device)
+    model.load_state_dict(state_dict)
+
+    model.eval()
+
+    acc_list = []
+    loss_list = []
+    for t_data, t_label, _, _ in test_loader:
+        t_data = t_data.to(device).float()
+        t_label = t_label.to(device).long()
+        t_pred = model.predict_class(t_data)
+        for i in range(len(t_pred)):
+            t_pred[i] = F.softmax(t_pred[i], dim=-1)
+        pred = sum(t_pred) / len(t_pred)
+        cls_loss = F.nll_loss(F.log_softmax(pred, dim=1), t_label)
+        acc = metrics(torch.argmax(pred, dim=-1), t_label)
+        acc_list.append(acc.item())
+        loss_list.append(cls_loss.item())
+
+    print('Testing Acc: {:.4f} - Testing Loss: {:.4f}'.format(np.mean(acc_list), np.mean(loss_list)))
+
+
 def train_cross_subject(sess):
     data_package, label_package = data_factory(config.file_path, config)
     data_sess, label_sess = data_package[str(sess)], label_package[str(sess)]
-    for target in range(12, config.source_number):
+
+    total_pred_list = []
+    total_real_list = []
+
+    for target in range(config.source_number):
+        print('Target ', target)
         target_comb, target_label_comb = data_sess[target], label_sess[target]
         target_comb = norminy(target_comb)
         target_comb, target_label_comb = shuffle(target_comb, target_label_comb)
@@ -205,10 +243,14 @@ def train_cross_subject(sess):
                 source_label_comb.append(source_label_comb_temp)
 
         train_model(source_comb, source_label_comb, target_comb, target_label_comb, target, sess)
+        # eval(source_comb, source_label_comb, target_comb, target_label_comb, target, sess)
 
 
 def train_cross_session(sub):
     data_package, label_package = data_factory(config.file_path, config)
+
+    total_pred_list = []
+    total_real_list = []
 
     for target in range(1, 4):
         target_comb, target_label_comb = data_package[str(target)][sub], label_package[str(target)][sub]
@@ -225,11 +267,12 @@ def train_cross_session(sub):
                 source_label_comb.append(source_label_comb_temp)
 
         train_model(source_comb, source_label_comb, target_comb, target_label_comb, target, sub)
+        # eval(source_comb, source_label_comb, target_comb, target_label_comb, target, sub)
 
 
 if __name__ == '__main__':
-    for sess in range(1, 4):
-        train_cross_subject(sess)
-    # for sub in range(15):
-    #     train_cross_session(sub)
+    # for sess in range(1, 4):
+    #     train_cross_subject(sess)
+    for sub in range(15):
+        train_cross_session(sub)
 
