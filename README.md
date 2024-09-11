@@ -8,7 +8,7 @@ Unlike traditional domain adaption, the features in our model are not directly a
 
 ## Architecture
 
-![Figure 2](image\model.png)
+![Figure 2](image/model.png)
 
 Throughout the training phase, a common encoder is employed to extract fundamental features from both the source domains and the target domain, thereby establishing a shared foundation across all domains. Next, the target domain features are duplicated into multiple copies, with each copy corresponding to a specific source domain feature. Subsequently, an individual encoder and classifier are utilized for each source domain to extract features that are specific to that domain and perform the classification. In order to regularize the deep clustering in the intermediate feature space, ISCL is employed for the output from the private encoder. Additionally, CSCL is utilized to regularize the final deep clustering on the classification.
 
