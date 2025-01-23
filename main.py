@@ -14,6 +14,8 @@ import os
 
 config = Config()
 
+Valid_set = False
+
 device = torch.device('cuda:0') if torch.cuda.is_available() else torch.device('cpu')
 
 np.random.seed(100)
@@ -22,8 +24,7 @@ metrics = torchmetrics.Accuracy().to(device)
 
 
 def train_model(source_comb, source_label_comb, target_comb, target_label_comb, target, sess):
-    target_loader, test_loader = generate_valid_test_loader(target_comb, target_label_comb, config)
-    # target_loader = generate_data_loader(target_comb, target_label_comb, config)
+    target_loader = generate_data_loader(target_comb, target_label_comb, config)
     source_loader = []
     for source in range(len(source_comb)):
         source_loader.append(generate_data_loader(source_comb[source], source_label_comb[source], config))
@@ -143,7 +144,7 @@ def train_model(source_comb, source_label_comb, target_comb, target_label_comb, 
             real_epoch += 1
             acc_list = []
             loss_list = []
-            for t_data, t_label, _, _ in test_loader:
+            for t_data, t_label, _, _ in target_loader:
                 t_data = t_data.to(device).float()
                 t_label = t_label.to(device).long()
                 t_pred = model.predict_class(t_data)
@@ -189,8 +190,7 @@ def train_model(source_comb, source_label_comb, target_comb, target_label_comb, 
 
 
 def eval(source_comb, source_label_comb, target_comb, target_label_comb, target, sess):
-    target_loader, test_loader = generate_valid_test_loader(target_comb, target_label_comb, config)
-    # target_loader = generate_data_loader(target_comb, target_label_comb, config)
+    target_loader = generate_data_loader(target_comb, target_label_comb, config)
     source_loader = []
     for source in range(len(source_comb)):
         source_loader.append(generate_data_loader(source_comb[source], source_label_comb[source], config))
@@ -205,7 +205,7 @@ def eval(source_comb, source_label_comb, target_comb, target_label_comb, target,
 
     acc_list = []
     loss_list = []
-    for t_data, t_label, _, _ in test_loader:
+    for t_data, t_label, _, _ in target_loader:
         t_data = t_data.to(device).float()
         t_label = t_label.to(device).long()
         t_pred = model.predict_class(t_data)
@@ -224,9 +224,6 @@ def train_cross_subject(sess):
     data_package, label_package = data_factory(config.file_path, config)
     data_sess, label_sess = data_package[str(sess)], label_package[str(sess)]
 
-    total_pred_list = []
-    total_real_list = []
-
     for target in range(config.source_number):
         print('Target ', target)
         target_comb, target_label_comb = data_sess[target], label_sess[target]
@@ -242,15 +239,21 @@ def train_cross_subject(sess):
                 source_comb.append(source_comb_temp)
                 source_label_comb.append(source_label_comb_temp)
 
-        train_model(source_comb, source_label_comb, target_comb, target_label_comb, target, sess)
-        # eval(source_comb, source_label_comb, target_comb, target_label_comb, target, sess)
+        if Valid_set:
+            train_comb_data, train_comb_label = source_comb[:-2], source_label_comb[:-2]
+            valid_comb_data, valid_comb_label = source_comb[-2:], source_label_comb[-2:]
+            if config.status == 'test':
+                train_model(train_comb_data, train_comb_label, target_comb, target_label_comb, target, sess)
+            elif config.status == 'valid':
+                for v in range(len(valid_comb_data)):
+                    train_model(train_comb_data, train_comb_label, valid_comb_data[v], valid_comb_label[v], v, sess)
+
+        else:
+            train_model(source_comb, source_label_comb, target_comb, target_label_comb, target, sess)
 
 
 def train_cross_session(sub):
     data_package, label_package = data_factory(config.file_path, config)
-
-    total_pred_list = []
-    total_real_list = []
 
     for target in range(1, 4):
         target_comb, target_label_comb = data_package[str(target)][sub], label_package[str(target)][sub]
@@ -266,8 +269,16 @@ def train_cross_session(sub):
                 source_comb.append(source_comb_temp)
                 source_label_comb.append(source_label_comb_temp)
 
-        train_model(source_comb, source_label_comb, target_comb, target_label_comb, target, sub)
-        # eval(source_comb, source_label_comb, target_comb, target_label_comb, target, sub)
+        if Valid_set:
+            valid_comb_data, valid_comb_label = source_comb[-1], source_label_comb[-1]
+            train_comb_data, train_comb_label = source_comb[:-1], source_label_comb[:-1]
+            if config.status == 'test':
+                train_model(train_comb_data, train_comb_label, target_comb, target_label_comb, target, sub)
+            else:
+                train_model(train_comb_data, train_comb_label, valid_comb_data, valid_comb_label, '-1', sub)
+
+        else:
+            train_model(source_comb, source_label_comb, target_comb, target_label_comb, target, sub)
 
 
 if __name__ == '__main__':
