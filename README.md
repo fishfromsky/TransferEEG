@@ -37,13 +37,26 @@ Relative configurations of the model can be adjusted in the `config.py`. To run 
 
 | Dataset |  Model   | Cross Subject Accuracy (%) | Cross Subject F1-Score (%) | Cross-session Accuracy (%) | Cross-session F1-Score (%) |
 | :-----: | :------: | :------------------------: | :------------------------: | :------------------------: | :------------------------: |
-|  SEED   |   DAN    |         68.71±7.12         |           68.05            |         79.86±8.72         |           79.21            |
-|  SEED   |  MS-MDA  |         82.68±8.77         |           82.43            |         89.30±8.67         |           89.26            |
-|  SEED   |  MS-ADA  |         86.16±7.87         |           86.13            |         91.10±7.08         |           91.05            |
-|  SEED   |   UDDA   |         88.10±6.54         |           87.18            |        90.19±10.67         |           89.90            |
-|  SEED   | **Ours** |       **90.69±9.28**       |         **90.65**          |       **95.05±6.08**       |         **95.02**          |
-| SEED-IV |   DAN    |         41.71±8.25         |           42.68            |        54.64±11.63         |           55.61            |
-| SEED-IV |  MS-MDA  |         65.66±9.18         |           65.61            |        67.70±13.71         |           67.64            |
-| SEED-IV |  MS-ADA  |        66.56±10.24         |           66.53            |        66.68±11.86         |           67.43            |
-| SEED-IV |   UDDA   |         73.14±9.43         |           73.01            |        75.96±11.55         |           75.87            |
-| SEED-IV | **Ours** |      **74.35±12.06**       |         **74.31**          |      **78.56±12.81**       |         **78.53**          |
+|  SEED   |   DAN    |         67.89±8.04         |           67.86            |         78.45±9.60         |           78.41            |
+|  SEED   |  MS-MDA  |        80.68±10.92         |           80.64            |        85.49±11.52         |           85.46            |
+|  SEED   |  MS-ADA  |         83.21±5.97         |           83.18            |         87.92±7.49         |           87.88            |
+|  SEED   |   UDDA   |         85.25±7.70         |           85.21            |         85.05±9.73         |           85.02            |
+|  SEED   | **Ours** |       **88.20±9.69**       |         **88.17**          |       **90.06±8.12**       |         **90.02**          |
+| SEED-IV |   DAN    |         41.71±8.25         |           42.68            |        47.45±11.29         |           47.42            |
+| SEED-IV |  MS-MDA  |        60.74±13.31         |           60.71            |        59.96±16.74         |           59.92            |
+| SEED-IV |  MS-ADA  |        62.86±10.65         |           62.82            |        60.77±14.71         |           60.73            |
+| SEED-IV |   UDDA   |        67.49±10.13         |           67.46            |        67.19±10.66         |           67.16            |
+| SEED-IV | **Ours** |      **71.49±13.58**       |         **71.46**          |      **69.96±14.75**       |         **69.94**          |
+
+if you find the paper or this repo useful, please cite
+
+```
+@article{chen2025cross,
+  title={Cross-Subject and Cross-Session EEG Emotion Recognition based on Multi-Source Structural Deep Clustering},
+  author={Chen, Yiyuan and Xu, Xiaodong and Qin, Xiaowei},
+  journal={IEEE Transactions on Cognitive and Developmental Systems},
+  year={2025},
+  publisher={IEEE}
+}
+```
+
