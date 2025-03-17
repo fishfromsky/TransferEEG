@@ -29,6 +29,12 @@ ExtractedFeatures/
     3/
 ```
 
+# Data Splitting
+
+This experiment adhered to a more rigorous LOSO concept in its experiments. The source participants were subsequently divided into training subjects and validation subjects. Training subjects are utilized for model training, whereas validation subjects are employed for hyperparameter tuning; subsequently, the final performance is assessed on target subject.
+
+<img src="image/data1.png" alt="Figure 2" style="zoom: 33%;" /><img src="image/data2.png" alt="Figure 2" style="zoom: 50%;" />
+
 ## Usage
 
 Relative configurations of the model can be adjusted in the `config.py`. To run the model, just run `python main.py`. The output of the model will be printed in the terminal
