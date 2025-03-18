@@ -33,7 +33,10 @@ ExtractedFeatures/
 
 This experiment adhered to a more rigorous LOSO concept in its experiments. The source participants were subsequently divided into training subjects and validation subjects. Training subjects are utilized for model training, whereas validation subjects are employed for hyperparameter tuning; subsequently, the final performance is assessed on target subject.
 
-<img src="image\data1.png" alt="image 1" style="zoom:50%;" /><img src="image\data2.png" alt="image 2" style="zoom:50%;" />
+<p align="center">
+  <img src="image/data1.png" alt="Image 1" width="45%">
+  <img src="image/data2.png" alt="Image 2" width="45%">
+</p>
 
 ## Usage
 
