@@ -31,7 +31,7 @@ ExtractedFeatures/
 
 # Data Splitting
 
-This experiment adhered to a more rigorous LOSO concept in its experiments. The source participants were subsequently divided into training subjects and validation subjects. Training subjects are utilized for model training, whereas validation subjects are employed for hyperparameter tuning; subsequently, the final performance is assessed on target subject.
+This experiment adhered to a more rigorous LOSO concept in its experiments. The source participants were subsequently divided into training subjects and validation subjects. Training subjects were utilized for model training, whereas validation subjects were employed for hyperparameter tuning; subsequently, the final performance was assessed on target subject.
 
 <p align="center">
   <img src="image/data1.png" alt="Image 1" width="45%">
